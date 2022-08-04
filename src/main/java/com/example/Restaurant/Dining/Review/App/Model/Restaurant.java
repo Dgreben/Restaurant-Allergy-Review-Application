@@ -12,11 +12,11 @@ public class Restaurant {
     @Id
     @GeneratedValue
     private Long id;
-    @Column(name="NAMES")
+    @Column(name="NAME")
     private String name;
-    @Column(name="LOCATIONS")
-    private String location;
-    @Column(name="CUISINES")
+    @Column(name="ZIPCODE")
+    private Integer zipcode;
+    @Column(name="CUISINE")
     private String cuisine;
     @Column(name="PEANUT_SCORE")
     private Integer peanutScore;
@@ -24,4 +24,7 @@ public class Restaurant {
     private Integer eggScore;
     @Column(name="DAIRY_SCORE")
     private Integer dairyScore;
+    @Column(name="OVERALL_SCORE")
+    private Integer overallScore;
+
 }

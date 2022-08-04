@@ -11,17 +11,17 @@ public class User {
     @Id
     @GeneratedValue
     private Long id;
-    @Column(name="USERNAMES")
+    @Column(name="USERNAME")
     private String username;
-    @Column(name="CITIES")
+    @Column(name="CITY")
     private String city;
-    @Column(name="STATES")
+    @Column(name="STATE")
     private String state;
-    @Column(name="ZIPCODES")
+    @Column(name="ZIPCODE")
     private String zipcode;
     @Column(name="ALLERGIC_TO_PEANUTS")
     private Boolean allergicToPeanuts;
-    @Column(name="ALLERGIC_TO_EGG")
+    @Column(name="ALLERGIC_TO_EGGS")
     private Boolean allergicToEgg;
     @Column(name="ALLERGIC_TO_DIARY")
     private Boolean allergicToDiary;
