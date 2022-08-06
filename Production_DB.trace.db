@@ -69,3 +69,12 @@ SELECT * FROM DINING_REVIEWS RESTAURANTS USERS [42000-214]
 2022-08-03 18:49:21 jdbc[13]: exception
 org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "[*]ID"; expected "INSERT"; SQL statement:
 ID [42001-214]
+2022-08-05 19:35:29 jdbc[13]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Syntax error in SQL statement "SELECT * FROM RESTAURANTS INFORMATION_SCHEMA[*].CHECK_CONSTRAINTS"; SQL statement:
+SELECT * FROM RESTAURANTS INFORMATION_SCHEMA.CHECK_CONSTRAINTS [42000-214]
+2022-08-05 19:39:34 jdbc[13]: exception
+org.h2.jdbc.JdbcSQLDataException: Data conversion error converting "'' (RESTAURANTS: ""ID"" BIGINT NOT NULL)"; SQL statement:
+INSERT INTO "PUBLIC"."RESTAURANTS"("ID","CUISINE","DAIRY_SCORE","EGG_SCORE","NAME","OVERALL_SCORE","PEANUT_SCORE","ZIPCODE")VALUES(?,?,?,?,?,?,?,?) [22018-214]
+2022-08-05 19:39:34 jdbc[13]: exception
+org.h2.jdbc.JdbcSQLDataException: Data conversion error converting "'' (RESTAURANTS: ""ID"" BIGINT NOT NULL)"; SQL statement:
+INSERT INTO "PUBLIC"."RESTAURANTS"("ID","CUISINE","DAIRY_SCORE","EGG_SCORE","NAME","OVERALL_SCORE","PEANUT_SCORE","ZIPCODE")VALUES(?,?,?,?,?,?,?,?) [22018-214]

@@ -2,6 +2,7 @@ package com.example.Restaurant.Dining.Review.App.Controller;
 
 import com.example.Restaurant.Dining.Review.App.Model.AllergyFocus;
 import com.example.Restaurant.Dining.Review.App.Model.Restaurant;
+import com.example.Restaurant.Dining.Review.App.Model.User;
 import com.example.Restaurant.Dining.Review.App.Repository.DiningReviewRepository;
 import com.example.Restaurant.Dining.Review.App.Repository.RestaurantRepository;
 import com.example.Restaurant.Dining.Review.App.Repository.UserRepository;
@@ -34,32 +35,46 @@ public class RestaurantAppController {
         if (allergyFocus == null) {
             return this.restaurantRepository.findByZipcode(zipcode);
         } else if (allergyFocus == AllergyFocus.PEANUT) {
-            return this.restaurantRepository.findByZipcodeAndPeanutScoreNotNull(zipcode);
+            return this.restaurantRepository.findByZipcodeAndPeanutScoreNotNullOrderByPeanutScoreDesc(zipcode);
         } else if (allergyFocus == AllergyFocus.EGG) {
-            return this.restaurantRepository.findByZipcodeAndEggScoreNotNull(zipcode);
+            return this.restaurantRepository.findByZipcodeAndEggScoreNotNullOrderByEggScoreDesc(zipcode);
         } else if (allergyFocus == AllergyFocus.DIARY) {
-            return this.restaurantRepository.findByZipcodeAndEggScoreNotNull(zipcode);
+            return this.restaurantRepository.findByZipcodeAndDairyScoreNotNullOrderByDairyScoreDesc(zipcode);
+        } else if (allergyFocus == AllergyFocus.ALL) {
+            return this.restaurantRepository.findByZipcodeAndOverallScoreNotNullOrderByOverallScoreDesc(zipcode);
         } else {
             return null;
         }
     }
+
     @GetMapping("/search/restaurants/{id}")
     public Restaurant searchSpecificRestaurant(@PathVariable("id") Integer id) {
         Optional<Restaurant> specificRestaurantOptional = this.restaurantRepository.findById(Long.valueOf(id));
-        if(!specificRestaurantOptional.isPresent()) {
+        if (!specificRestaurantOptional.isPresent()) {
             return null;
         }
-        Restaurant specificRestaurant = specificRestaurantOptional.get();
-        return specificRestaurant;
+        return specificRestaurantOptional.get();
     }
+
+
     @PostMapping("/submit/restaurant")
     public Restaurant submitRestaurant(@RequestBody Restaurant restaurant) {
-        Integer zipcodeTest = restaurant.getZipcode();
-        String nameTest = restaurant.getName();
-        if (this.restaurantRepository.findByZipcodeAndName(zipcodeTest, nameTest) == null) {
+        Optional<Restaurant> restaurantToTest = this.restaurantRepository.findByZipcodeAndName(restaurant.getZipcode(), restaurant.getName());
+        if(!restaurantToTest.isPresent()) {
             return this.restaurantRepository.save(restaurant);
-        } else {
+        }
+        else {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "This specific restaurant is already in the database!");
+        }
+    }
+    @PostMapping("user/creation")
+    public User createNewUser(@RequestBody User user) {
+        Optional<User> userToTest = this.userRepository.findByUsername(user.getUsername());
+        if(!userToTest.isPresent()) {
+            return this.userRepository.save(user);
+        }
+        else {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "This username is already taken!");
         }
     }
 }

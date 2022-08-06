@@ -4,13 +4,14 @@ import com.example.Restaurant.Dining.Review.App.Model.Restaurant;
 import org.springframework.data.repository.CrudRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 
 public interface RestaurantRepository extends CrudRepository<Restaurant, Long> {
     List<Restaurant> findByZipcode(Integer zipcode);
-    List<Restaurant> findByZipcodeAndName(Integer zipcode, String name);
-    List<Restaurant> findByZipcodeAndPeanutScoreNotNull(Integer zipcode);
-    List<Restaurant> findByZipcodeAndEggScoreNotNull(Integer zipcode);
-    List<Restaurant> findByZipcodeAndDairyScoreNotNull(Integer zipcode);
-    List<Restaurant> findByZipcodeAndOverallScoreNotNull(Integer zipcode);
+    Optional<Restaurant> findByZipcodeAndName(Integer zipcode, String name);
+    List<Restaurant> findByZipcodeAndPeanutScoreNotNullOrderByPeanutScoreDesc(Integer zipcode);
+    List<Restaurant> findByZipcodeAndEggScoreNotNullOrderByEggScoreDesc(Integer zipcode);
+    List<Restaurant> findByZipcodeAndDairyScoreNotNullOrderByDairyScoreDesc(Integer zipcode);
+    List<Restaurant> findByZipcodeAndOverallScoreNotNullOrderByOverallScoreDesc(Integer zipcode);
 }

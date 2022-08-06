@@ -11,6 +11,8 @@ public class User {
     @Id
     @GeneratedValue
     private Long id;
+    @Column(name="FIRST_NAME")
+    private String firstName;
     @Column(name="USERNAME")
     private String username;
     @Column(name="CITY")
