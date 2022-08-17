@@ -9,6 +9,6 @@ import java.util.Optional;
 
 public interface DiningReviewRepository extends CrudRepository<DiningReview, Integer> {
     List<DiningReview> findByReviewStatus(ReviewStatus reviewStatus);
-    List<DiningReview> findByRestaurantIdAndReviewStatus(Long restaurantId, ReviewStatus reviewStatus);
-    Optional<DiningReview> findByCreatorNameAndRestaurantId(String creatorName, Long restaurantId);
+    List<DiningReview> findByRestaurantIdAndReviewStatus(Integer restaurantId, ReviewStatus reviewStatus);
+    Optional<DiningReview> findByCreatorNameAndRestaurantId(String creatorName, Integer restaurantId);
 }

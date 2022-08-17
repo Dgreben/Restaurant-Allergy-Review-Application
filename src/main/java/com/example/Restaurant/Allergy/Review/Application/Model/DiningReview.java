@@ -5,17 +5,17 @@ import lombok.Data;
 import javax.persistence.*;
 
 
-@Data
 @Entity
+@Data
 @Table(name="DINING_REVIEWS")
 public class DiningReview {
     @Id
     @GeneratedValue
-    private Long id;
+    private Integer id;
     @Column(name="CREATOR_NAME")
     private String creatorName;
     @Column(name="RESTAURANT_ID")
-    private Long restaurantId;
+    private Integer restaurantId;
     @Column(name="PEANUT_SCORE")
     private Integer peanutScore;
     @Column(name="EGG_SCORE")
@@ -27,8 +27,6 @@ public class DiningReview {
     @Column(name="REVIEW_STATUS")
     @Enumerated(EnumType.STRING)
     private ReviewStatus reviewStatus;
-
-
 
 
 }

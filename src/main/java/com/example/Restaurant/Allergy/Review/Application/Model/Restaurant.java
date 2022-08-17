@@ -11,7 +11,7 @@ import javax.persistence.*;
 public class Restaurant {
     @Id
     @GeneratedValue
-    private Long id;
+    private Integer id;
     @Column(name="NAME")
     private String name;
     @Column(name="ZIPCODE")

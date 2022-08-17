@@ -11,6 +11,8 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.List;
 import java.util.Optional;
 
+
+
 @RestController
 @RequestMapping("")
 public class RestaurantAppController {
@@ -46,7 +48,7 @@ public class RestaurantAppController {
 
     @GetMapping("/restaurants/search/{id}")
     public Restaurant searchSpecificRestaurant(@PathVariable("id") Integer id) {
-        Optional<Restaurant> specificRestaurantOptional = this.restaurantRepository.findById(Long.valueOf(id));
+        Optional<Restaurant> specificRestaurantOptional = this.restaurantRepository.findById(id);
         if(specificRestaurantOptional.isEmpty()) {
             return null;
         }
@@ -66,11 +68,21 @@ public class RestaurantAppController {
     }
     @GetMapping("/restaurants/search/{id}/reviews")
     public List<DiningReview> searchDiningReviews(@PathVariable("id") Integer id) {
-        Optional<Restaurant> restaurantOptional = this.restaurantRepository.findById(Long.valueOf(id));
+        Optional<Restaurant> restaurantOptional = this.restaurantRepository.findById(id);
         if(restaurantOptional.isEmpty()) {
             return null;
         }
-        List<DiningReview> diningReviews = this.diningReviewRepository.findByRestaurantIdAndReviewStatus(Long.valueOf(id), ReviewStatus.ACCEPTED);
+        List<DiningReview> diningReviews = this.diningReviewRepository.findByRestaurantIdAndReviewStatus(id, ReviewStatus.ACCEPTED);
+        if(diningReviews.isEmpty()) {
+            return null;
+        }
+        else {
+            return diningReviews;
+        }
+    }
+    @GetMapping("/admin/reviews/search")
+    public List<DiningReview> adminSearchDiningReviews(@RequestParam String reviewStatus) {
+        List<DiningReview> diningReviews = this.diningReviewRepository.findByReviewStatus(ReviewStatus.valueOf(reviewStatus.toUpperCase()));
         if(diningReviews.isEmpty()) {
             return null;
         }
@@ -95,6 +107,18 @@ public class RestaurantAppController {
             existingUser.setAllergicToEgg(newUser.getAllergicToEgg());
             existingUser.setAllergicToDiary(newUser.getAllergicToDiary());
             return this.userRepository.save(existingUser);
+        }
+    }
+    @PutMapping("/admin/reviews/search/{id}")
+    public DiningReview updateDiningReviewStatus(@PathVariable("id") Integer id, @RequestParam String reviewStatus) {
+        Optional<DiningReview> existingDiningReviewOptional = this.diningReviewRepository.findById(id);
+        if(existingDiningReviewOptional.isEmpty()) {
+            return null;
+        }
+        else {
+            DiningReview diningReviewToUpdate = existingDiningReviewOptional.get();
+            diningReviewToUpdate.setReviewStatus(ReviewStatus.valueOf(reviewStatus.toUpperCase()));
+            return this.diningReviewRepository.save(diningReviewToUpdate);
         }
     }
 
@@ -125,7 +149,7 @@ public class RestaurantAppController {
         if(userValidationOptional.isEmpty()) {
             return null;
         }
-        diningReview.setRestaurantId(Long.valueOf(id));
+        diningReview.setRestaurantId(id);
         diningReview.setCreatorName(username);
         Optional<DiningReview> diningReviewToTest =
                 this.diningReviewRepository.findByCreatorNameAndRestaurantId(diningReview.getCreatorName(), diningReview.getRestaurantId());
