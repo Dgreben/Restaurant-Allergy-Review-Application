@@ -4,6 +4,7 @@ import lombok.Data;
 
 
 import javax.persistence.*;
+import java.math.BigDecimal;
 
 @Data
 @Entity
@@ -18,13 +19,13 @@ public class Restaurant {
     private Integer zipcode;
     @Column(name="CUISINE")
     private String cuisine;
-    @Column(name="PEANUT_SCORE")
-    private Integer peanutScore;
-    @Column(name="EGG_SCORE")
-    private Integer eggScore;
-    @Column(name="DAIRY_SCORE")
-    private Integer dairyScore;
-    @Column(name="OVERALL_SCORE")
-    private Integer overallScore;
+    @Column(name="PEANUT_SCORE", precision = 3, scale = 2, columnDefinition ="DECIMAL(3,2)")
+    private BigDecimal peanutScore;
+    @Column(name="EGG_SCORE", precision = 3, scale = 2, columnDefinition="DECIMAL(3,2)")
+    private BigDecimal eggScore;
+    @Column(name="DAIRY_SCORE", precision = 3, scale = 2, columnDefinition="DECIMAL(3,2)")
+    private BigDecimal dairyScore;
+    @Column(name="OVERALL_SCORE", precision = 3, scale = 2, columnDefinition="DECIMAL(3,2)")
+    private BigDecimal overallScore;
 
 }

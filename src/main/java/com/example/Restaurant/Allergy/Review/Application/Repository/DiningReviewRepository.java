@@ -10,5 +10,8 @@ import java.util.Optional;
 public interface DiningReviewRepository extends CrudRepository<DiningReview, Integer> {
     List<DiningReview> findByReviewStatus(ReviewStatus reviewStatus);
     List<DiningReview> findByRestaurantIdAndReviewStatus(Integer restaurantId, ReviewStatus reviewStatus);
+    List<DiningReview> findByRestaurantIdAndReviewStatusAndEggScoreNotNull(Integer restaurantId, ReviewStatus reviewStatus);
+    List<DiningReview> findByRestaurantIdAndReviewStatusAndPeanutScoreNotNull(Integer restaurantId, ReviewStatus reviewStatus);
+    List<DiningReview> findByRestaurantIdAndReviewStatusAndDairyScoreNotNull(Integer restaurantId, ReviewStatus reviewStatus);
     Optional<DiningReview> findByCreatorNameAndRestaurantId(String creatorName, Integer restaurantId);
 }
