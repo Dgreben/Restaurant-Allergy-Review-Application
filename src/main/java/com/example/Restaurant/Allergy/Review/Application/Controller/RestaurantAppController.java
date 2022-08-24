@@ -4,30 +4,34 @@ import com.example.Restaurant.Allergy.Review.Application.Model.*;
 import com.example.Restaurant.Allergy.Review.Application.Repository.DiningReviewRepository;
 import com.example.Restaurant.Allergy.Review.Application.Repository.RestaurantRepository;
 import com.example.Restaurant.Allergy.Review.Application.Repository.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.text.DecimalFormat;
 import java.util.List;
 import java.util.Optional;
-
-
 
 @RestController
 @RequestMapping("")
 public class RestaurantAppController {
+    @Autowired
     private final RestaurantRepository restaurantRepository;
+    @Autowired
     private final DiningReviewRepository diningReviewRepository;
+    @Autowired
     private final UserRepository userRepository;
 
+    @Autowired
     public RestaurantAppController(RestaurantRepository restaurantRepository, DiningReviewRepository diningReviewRepository, UserRepository userRepository) {
         this.restaurantRepository = restaurantRepository;
         this.diningReviewRepository = diningReviewRepository;
         this.userRepository = userRepository;
     }
+
+
 
     @GetMapping(value = "/restaurants/search", produces = { "application/json" })
     public List<Restaurant> searchRestaurants(
@@ -40,7 +44,7 @@ public class RestaurantAppController {
             return this.restaurantRepository.findByZipcodeAndPeanutScoreNotNullOrderByPeanutScoreDesc(zipcode);
         } else if (allergyFocus == AllergyFocus.EGG) {
             return this.restaurantRepository.findByZipcodeAndEggScoreNotNullOrderByEggScoreDesc(zipcode);
-        } else if (allergyFocus == AllergyFocus.DIARY) {
+        } else if (allergyFocus == AllergyFocus.DAIRY) {
             return this.restaurantRepository.findByZipcodeAndDairyScoreNotNullOrderByDairyScoreDesc(zipcode);
         } else if (allergyFocus == AllergyFocus.ALL) {
             return this.restaurantRepository.findByZipcodeAndOverallScoreNotNullOrderByOverallScoreDesc(zipcode);
@@ -71,14 +75,15 @@ public class RestaurantAppController {
 
     @GetMapping(value = "/restaurants/search/{id}/reviews", produces = { "application/json" })
     public List<DiningReview> searchDiningReviews(@PathVariable("id") Integer id) {
+        List<DiningReview> diningReviews = this.diningReviewRepository.findByRestaurantIdAndReviewStatus(id, ReviewStatus.ACCEPTED);
         Optional<Restaurant> restaurantOptional = this.restaurantRepository.findById(id);
         if (restaurantOptional.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
-        List<DiningReview> diningReviews = this.diningReviewRepository.findByRestaurantIdAndReviewStatus(id, ReviewStatus.ACCEPTED);
-        if (diningReviews.isEmpty()) {
+        else if (diningReviews.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-        } else {
+        }
+        else {
             return diningReviews;
         }
     }
