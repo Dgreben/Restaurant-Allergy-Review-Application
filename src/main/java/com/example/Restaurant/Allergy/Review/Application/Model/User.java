@@ -1,7 +1,5 @@
 package com.example.Restaurant.Allergy.Review.Application.Model;
-
 import lombok.Data;
-
 import javax.persistence.*;
 
 @Data

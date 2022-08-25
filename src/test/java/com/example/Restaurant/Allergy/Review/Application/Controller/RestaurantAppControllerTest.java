@@ -28,7 +28,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 
 @AutoConfigureMockMvc
 @ExtendWith(SpringExtension.class)
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
+@SpringBootTest
 class RestaurantAppControllerTest {
 
     @Autowired
@@ -36,9 +36,6 @@ class RestaurantAppControllerTest {
 
     @Autowired
     private WebApplicationContext context;
-
-    @Autowired
-    private RestaurantAppController controller;
 
     @MockBean
     private RestaurantRepository restaurantRepositoryTest;
@@ -58,7 +55,7 @@ class RestaurantAppControllerTest {
 
 
     @BeforeEach()
-
+    // Building context and objects for testing
     public void setUp() {
         mvc = MockMvcBuilders.webAppContextSetup(context).build();
 
@@ -199,7 +196,7 @@ class RestaurantAppControllerTest {
             when(diningReviewRepositoryTest.findById(4)).thenReturn(Optional.of(diningReviewTest2A));
             mvc.perform(MockMvcRequestBuilders.put("/admin/reviews/search/4").param("reviewStatus", "REJECTED"))
                     .andDo(print())
-                    .andExpect(MockMvcResultMatchers.status().isOk()).andReturn().getResponse().getContentAsString();
+                    .andExpect(MockMvcResultMatchers.status().isUnprocessableEntity()).andReturn().getResponse().getContentAsString();
         }
         // Testing endpoint "/restaurants/submit" with POST mapping
         @Test

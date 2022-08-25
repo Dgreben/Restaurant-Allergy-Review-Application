@@ -1,9 +1,5 @@
 package com.example.Restaurant.Allergy.Review.Application.Model;
-
 import lombok.Data;
-import lombok.RequiredArgsConstructor;
-
-
 import javax.persistence.*;
 import java.math.BigDecimal;
 

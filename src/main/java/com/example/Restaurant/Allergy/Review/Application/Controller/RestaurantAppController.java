@@ -1,5 +1,4 @@
 package com.example.Restaurant.Allergy.Review.Application.Controller;
-
 import com.example.Restaurant.Allergy.Review.Application.Model.*;
 import com.example.Restaurant.Allergy.Review.Application.Repository.DiningReviewRepository;
 import com.example.Restaurant.Allergy.Review.Application.Repository.RestaurantRepository;
@@ -8,7 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
-
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
@@ -30,14 +28,13 @@ public class RestaurantAppController {
         this.diningReviewRepository = diningReviewRepository;
         this.userRepository = userRepository;
     }
-
-
-
+    // Endpoint designed to let users search for a list of Restaurants based off of Zipcode and allergyFocus
     @GetMapping(value = "/restaurants/search", produces = { "application/json" })
     public List<Restaurant> searchRestaurants(
             @RequestParam Integer zipcode,
             @RequestParam(required = false) AllergyFocus allergyFocus
     ) {
+        // If there is no allergyFocus given, the search with just be based of the Zipcode provided
         if (allergyFocus == null) {
             return this.restaurantRepository.findByZipcode(zipcode);
         } else if (allergyFocus == AllergyFocus.PEANUT) {
@@ -46,15 +43,17 @@ public class RestaurantAppController {
             return this.restaurantRepository.findByZipcodeAndEggScoreNotNullOrderByEggScoreDesc(zipcode);
         } else if (allergyFocus == AllergyFocus.DAIRY) {
             return this.restaurantRepository.findByZipcodeAndDairyScoreNotNullOrderByDairyScoreDesc(zipcode);
+            // This focus is designed to search for restaurants based off of their cumulative score across all the categories
         } else if (allergyFocus == AllergyFocus.ALL) {
             return this.restaurantRepository.findByZipcodeAndOverallScoreNotNullOrderByOverallScoreDesc(zipcode);
         } else {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         }
     }
-
+    // Endpoint designed to let users search for a specific Restaurant ID
     @GetMapping(value = "/restaurants/search/{id}", produces = { "application/json" })
     public Restaurant searchSpecificRestaurant(@PathVariable("id") Integer id) {
+        // Validation check for the restaurant ID
         Optional<Restaurant> specificRestaurantOptional = this.restaurantRepository.findById(id);
         if (specificRestaurantOptional.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
@@ -62,9 +61,10 @@ public class RestaurantAppController {
             return specificRestaurantOptional.get();
         }
     }
-
+    // Endpoint designed to let users search for a specific username
     @GetMapping(value = "/user/search/{username}", produces = { "application/json" })
     public User searchSpecificUser(@PathVariable("username") String username) {
+        // Validation check for the username String
         Optional<User> specificUserOptional = this.userRepository.findByUsername(username);
         if (specificUserOptional.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
@@ -72,14 +72,17 @@ public class RestaurantAppController {
             return specificUserOptional.get();
         }
     }
-
+    // Endpoint designed to let users search for dining reviews based off of a Restaurant ID
     @GetMapping(value = "/restaurants/search/{id}/reviews", produces = { "application/json" })
     public List<DiningReview> searchDiningReviews(@PathVariable("id") Integer id) {
+        // This endpoint is only designed to only display reviews that are approved
         List<DiningReview> diningReviews = this.diningReviewRepository.findByRestaurantIdAndReviewStatus(id, ReviewStatus.ACCEPTED);
+        // Validation check for the restaurant ID
         Optional<Restaurant> restaurantOptional = this.restaurantRepository.findById(id);
         if (restaurantOptional.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
+        // Validation check in case the restaurant has zero approved reviews
         else if (diningReviews.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
@@ -87,22 +90,25 @@ public class RestaurantAppController {
             return diningReviews;
         }
     }
-
+    // Endpoint designed to let admins search for dining reviews based off of their review status
     @GetMapping(value = "/admin/reviews/search", produces = { "application/json" })
     public List<DiningReview> adminSearchDiningReviews(@RequestParam String reviewStatus) {
         List<DiningReview> diningReviews = this.diningReviewRepository.findByReviewStatus(ReviewStatus.valueOf(reviewStatus.toUpperCase()));
+        // Validation check in case there are zero reviews of the requested type
         if (diningReviews.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         } else {
             return diningReviews;
         }
     }
-
+    // Endpoint designed to let users update their own settings(except their username)
     @PutMapping(value = "/user/{username}/settings", produces = { "application/json" })
     public User updateUserSettings(@PathVariable("username") String username, @RequestBody User newUser) {
         Optional<User> existingUserOptional = this.userRepository.findByUsername(username);
+        // Validation check in case the username in the URI doesn't exist
         if (existingUserOptional.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+            // .setUsername is purposefully omitted as usernames aren't allowed to be altered
         } else {
             User existingUser = existingUserOptional.get();
             existingUser.setFirstName(newUser.getFirstName());
@@ -115,20 +121,24 @@ public class RestaurantAppController {
             return this.userRepository.save(existingUser);
         }
     }
-
+    /* Endpoint designed to let admins update dining review statuses.
+                If the review is approved a validation process will occur for updating Restaurant Scores */
     @PutMapping(value = "/admin/reviews/search/{id}", produces = { "application/json" })
     public DiningReview updateDiningReviewStatus(@PathVariable("id") Integer id, @RequestParam String reviewStatus) {
         Optional<DiningReview> existingDiningReviewOptional = this.diningReviewRepository.findById(id);
+        // Validation check for the dining review ID
         if (existingDiningReviewOptional.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         } else {
             DiningReview diningReviewToUpdate = existingDiningReviewOptional.get();
             diningReviewToUpdate.setReviewStatus(ReviewStatus.valueOf(reviewStatus.toUpperCase()));
+            // Validation check for the restaurant ID tied to the dining review
+            Optional<Restaurant> restaurantToUpdateOptional = this.restaurantRepository.findById(diningReviewToUpdate.getRestaurantId());
+            if (restaurantToUpdateOptional.isEmpty()) {
+                throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY);
+            }
+            // If the admin approves the dining review, another process begins to update the Restaurant with the new scores
             if (diningReviewToUpdate.getReviewStatus() == ReviewStatus.ACCEPTED) {
-                Optional<Restaurant> restaurantToUpdateOptional = this.restaurantRepository.findById(diningReviewToUpdate.getRestaurantId());
-                if (restaurantToUpdateOptional.isEmpty()) {
-                    throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY);
-                }
                 Restaurant restaurantToUpdate = restaurantToUpdateOptional.get();
                 this.diningReviewRepository.save(diningReviewToUpdate);
                 updateRestaurantScores(restaurantToUpdate);
@@ -136,30 +146,32 @@ public class RestaurantAppController {
             return this.diningReviewRepository.save(diningReviewToUpdate);
         }
     }
-
-
+    // Endpoint designed to allow users to submit a new restaurant(as long as a restaurant with the same Zipcode and Name don't already exist)
     @PostMapping(value = "/restaurants/submit", produces = { "application/json" })
     public Restaurant submitRestaurant(@RequestBody Restaurant restaurant) {
         Optional<Restaurant> restaurantToTestOptional = this.restaurantRepository.findByZipcodeAndName(restaurant.getZipcode(), restaurant.getName());
+        // Duplicate entry check
         if (restaurantToTestOptional.isEmpty()) {
             return this.restaurantRepository.save(restaurant);
         } else {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "This specific restaurant is already in the database!");
         }
     }
-
+    // Endpoint designed to allow users to create a new account(as long as a user with the same username doesn't already exist)
     @PostMapping(value = "/user/creation", produces = { "application/json" })
     public User createNewUser(@RequestBody User user) {
         Optional<User> userToTest = this.userRepository.findByUsername(user.getUsername());
+        // Duplicate entry check
         if (userToTest.isEmpty()) {
             return this.userRepository.save(user);
         } else {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "This username is already taken!");
         }
     }
-
+    // Endpoint designed to allow users to create a new review for a specific Restaurant ID
     @PostMapping(value = "/restaurants/search/{id}/reviews/creation", produces = { "application/json" })
     public DiningReview createNewReview(@PathVariable("id") Integer id, @RequestParam String username, @RequestBody DiningReview diningReview) {
+        // Validating that the user exists
         Optional<User> userValidationOptional = this.userRepository.findByUsername(username);
         if (userValidationOptional.isEmpty()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
@@ -168,6 +180,7 @@ public class RestaurantAppController {
         diningReview.setCreatorName(username);
         Optional<DiningReview> diningReviewToTest =
                 this.diningReviewRepository.findByCreatorNameAndRestaurantId(diningReview.getCreatorName(), diningReview.getRestaurantId());
+        // Duplicate entry check - if there are no duplicates then the review is given a status of pending
         if (diningReviewToTest.isEmpty()) {
             diningReview.setReviewStatus(ReviewStatus.PENDING_APPROVAL);
             return this.diningReviewRepository.save(diningReview);
@@ -175,7 +188,7 @@ public class RestaurantAppController {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "There is already a review for this restaurant under this username!");
         }
     }
-
+    // Method used to validate Restaurant scores and update them when a dining review is accepted
     public void updateRestaurantScores(Restaurant restaurantToUpdate) {
         // Compute peanut score for restaurant
         List<DiningReview> diningReviewsWithPeanutScore =
