@@ -13,12 +13,14 @@ An application API designed to allow users and administrators to create accounts
 [Mockito] Testing framework for integration testing  
 
 ## Testing
-Constructed integration tests on API endpoints using JUnit5 and Mockito. Ensured the endpoints deliver correct data and display the proper errors to users incase of an HTTP warning. Tested user data scenarios using Postman.
+Constructed integration tests on API endpoints using JUnit5 and Mockito. Ensured the endpoints delivered correct data and displayed the proper errors to users in case of an HTTP warning. Tested user data scenarios using Postman.
 
 ## Deploying on your system
 Fork the Repository and run the main class found in RestaurantAllergyReviewApplication.java  
-To view data using the H2 database I leveraged, type the following into your web browser after running the application: http://localhost:9090/h2-console | Username: sa Password: password  
+
+To view data using the H2 database I leveraged, type the following into your web browser after running the application: http://localhost:9090/h2-console | Username: sa | Password: password  
+
 To test and add data without a database, utilize your web browser or Postman to interact with the endpoints. Ex: (GET) http://localhost:9090/restaurants/search?zipcode=93012&allergyFocus=ALL  
 
 ## Built By
-Project soley created and designed by Dave Greben
+Project solely created and designed by Dave Greben
